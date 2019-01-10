@@ -51,7 +51,7 @@ CMD_TAMPLETE_2 = "-crf $CRF{index} -preset faster -r $R{index} -map [out{index}]
 
 VARS_TEMPLATE = """\
 FOLDER{index}=$CROP/input/$ID/{folder}; test -d $FOLDER{index} || mkdir -p $FOLDER{index}; test -d /tmp$FOLDER{index} || mkdir -p /tmp$FOLDER{index}
-FOLDER100=$CROP/processed/$ID/stanS2_roll_move_clips; test -d $FOLDER100 || mkdir -p $FOLDER100
+FOLDER100=$CROP/processed/$ID/{folder}; test -d $FOLDER100 || mkdir -p $FOLDER100
 CROP{index}={crop}
 PREFIX{index}={prefix}
 CRF{index}={crf}
