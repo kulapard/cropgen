@@ -28,7 +28,6 @@ echo "Error. Something is wrong. Moving bad file..."
 test -d /mnt/share/cam/processed/$ID/BAD || mkdir -p /mnt/share/cam/processed/$ID/BAD ; mv $DIR/$ID/$FILE /mnt/share/cam/processed/$ID/BAD/
 else
 {mv}
-#Повторное использование результатов кропа 1 для 2,5 и 3 для 4, 6 для 7, 8 для 9.
 {cp}
 #rm /root/video/$ID/$FILE
 test -d /mnt/share/cam/processed/$ID/Done || mkdir -p /mnt/share/cam/processed/$ID/Done ; mv $DIR/$ID/$FILE /mnt/share/cam/processed/$ID/Done/
