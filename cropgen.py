@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 from collections import defaultdict
-from config import CROPS
 
 TEMPLATE = """\
 #!/bin/bash
@@ -12,12 +11,12 @@ source /root/conf.conf
 #DIR=/mnt/share/cam/input
 CROP=/mnt/share/crop
 
-[ $CAMID19 ] || exit
-ID=$CAMID19
+[ $CAMID{camid} ] || exit
+ID=$CAMID{camid}
 {vars}
 while :; do
 while [ `ls -p $DIR/$ID | grep -v / | wc -l` -ge 2 ]; do
-[ -f /mnt/share/control/ch19_9215 ] || exit
+[ -f /mnt/share/control/ch{camid}_{sboxid} ] || exit
 FILE=$(ls -p $DIR/$ID | grep -v / | head -1)
 NAME=$(echo $FILE | awk -F"\_" '{{print $3}}')
 cp $DIR/$ID/$FILE /tmp/$FILE
@@ -127,15 +126,54 @@ def sort_crops(crops):
     return sorted_crops
 
 
-def gen_script():
-    vars = gen_vars(CROPS)
-    sorted_crops = sort_crops(CROPS)
+def parse_config(path):
+    """
+    Парсит текстовый файл конфига и возвращает словарь с настройками для генерации кроп-скрипта
+    """
+    config = {
+        'crops': [],
+    }
+    with open(path, 'r') as f:
+        for line in f:
+            line = line.rstrip('\n;')
+            if not line:
+                # Пропускаем пустые строки
+                continue
+
+            line_vars = {}
+            for kv in line.split(';'):
+                k, v = kv.split(':', 1)
+                k = k.strip()
+                v = v.strip()
+                line_vars[k] = v
+
+            if 'crop' in line_vars:
+                config['crops'].append(line_vars)
+            else:
+                config.update(line_vars)
+
+    return config
+
+
+def gen_script(config):
+    """
+    Основная функция для генерации кроп-скрипта
+    """
+    vars = gen_vars(crops=config['crops'])
+    sorted_crops = sort_crops(crops=config['crops'])
     cmd = gen_cmd(sorted_crops)
     mv = gen_mv(sorted_crops)
     cp = gen_cp(sorted_crops)
 
-    return TEMPLATE.format(vars=vars, cmd=cmd, mv=mv, cp=cp)
+    return TEMPLATE.format(vars=vars, cmd=cmd, mv=mv, cp=cp, **config)
 
 
 if __name__ == '__main__':
-    print(gen_script())
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', help='path to config file (default: ./config.txt)', default='./config.txt')
+    args = parser.parse_args()
+
+    config = parse_config(args.config)
+    print(gen_script(config))
