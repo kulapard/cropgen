@@ -116,13 +116,26 @@ def gen_cmd(sorted_crops):
 
 def sort_crops(crops):
     """
+    Пример crops:
+    [
+        {
+            'prefix': '106_472_580_400_290',
+            'r': '3',
+            'crf': '25',
+            'folder': 'stanS1_roll_on_clips',
+            'crop': '400:290:472:580'
+        },
+        ...
+    ]
+
     Возвращает словарь вида:
-    {'400:290:472:580': [1, 2]}
+    {('400:290:472:580', '25', '3'): [1, 2]}
     где в списке первый элемент - оригинал, остальные - копии
     """
     sorted_crops = defaultdict(list)
     for index, crop in enumerate(crops, start=1):
-        sorted_crops[crop['crop']].append(index)
+        unique_key = (crop['crop'], crop['crf'], crop['r'])
+        sorted_crops[unique_key].append(index)
     return sorted_crops
 
 
